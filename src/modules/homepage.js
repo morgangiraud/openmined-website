@@ -74,35 +74,29 @@ export default (state = initialState, action) => {
   }
 };
 
-// TODO: We should really clean this up. Smells like recursion!
-const formatContent = (content, item) => {
-  const items = {};
+const formatContent = (content, out, _lead) => {
+  Object.keys(content).forEach(val => {
+    let parts = val.split('_');
+    let lead = parts.shift();
 
-  Object.keys(content).forEach(key => {
-    if (~key.indexOf(item + '_')) {
-      if (typeof content[key] === 'object' && !Array.isArray(content[key])) {
-        Object.keys(content[key]).forEach(subKey => {
-          content[key][subKey.substr(subKey.indexOf('_') + 1)] =
-            content[key][subKey];
-          delete content[key][subKey];
-        });
-      } else if (
-        typeof content[key] === 'object' &&
-        Array.isArray(content[key])
-      ) {
-        content[key].forEach(item => {
-          Object.keys(item).forEach(subKey => {
-            item[subKey.substr(subKey.indexOf('_') + 1)] = item[subKey];
-            delete item[subKey];
-          });
-        });
-      }
-
-      items[key.substr(key.indexOf('_') + 1)] = content[key];
+    while (lead === _lead) {
+      lead = parts.shift();
     }
-  });
 
-  return items;
+    let trail = parts.join('_');
+
+    if (typeof out[lead] === 'undefined') {
+      out[lead] = {};
+    }
+
+    if (Array.isArray(content[val])) {
+      out[lead][trail] = content[val];
+    } else if (content[val] !== null && typeof content[val] === 'object') {
+      return formatContent(content[val], out[lead], lead);
+    }
+
+    out[lead][trail] = content[val];
+  });
 };
 
 export const getContent = () => {
@@ -110,34 +104,33 @@ export const getContent = () => {
     fetch(WORDPRESS_API_URL + '/acf/v2/options')
       .then(response => response.json())
       .then(response => {
-        const content = {};
-        const items = ['hero', 'mission', 'process', 'timeline', 'footer'];
+        let content = {};
 
-        items.forEach(item => {
-          content[item] = formatContent(response.acf, item);
-        });
+        formatContent(response.acf, content);
 
-        // Load content from Wordpress
-        dispatch({
-          type: GET_CONTENT,
-          content
-        });
+        console.log('finished', content);
 
-        // Load Github issues and contributors from Serverless
-        getGithubProjects(content.timeline.repos).then(({ repos }) => {
-          dispatch({
-            type: GET_GITHUB_PROJECTS,
-            repos
-          });
-        });
-
-        // Load Github members from Serverless
-        getGithubMembers().then(({ members }) => {
-          dispatch({
-            type: GET_GITHUB_MEMBERS,
-            members
-          });
-        });
+        // // Load content from Wordpress
+        // dispatch({
+        //   type: GET_CONTENT,
+        //   content
+        // });
+        //
+        // // Load Github issues and contributors from Serverless
+        // getGithubProjects(content.timeline.repos).then(({ repos }) => {
+        //   dispatch({
+        //     type: GET_GITHUB_PROJECTS,
+        //     repos
+        //   });
+        // });
+        //
+        // // Load Github members from Serverless
+        // getGithubMembers().then(({ members }) => {
+        //   dispatch({
+        //     type: GET_GITHUB_MEMBERS,
+        //     members
+        //   });
+        // });
       });
   };
 };
