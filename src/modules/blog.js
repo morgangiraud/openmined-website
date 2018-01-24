@@ -99,29 +99,28 @@ const getOrLoadTaxonomies = () => {
           ).then(response => response.json());
         };
 
-        Promise.all([
-          getTaxonomy('categories'),
-          getTaxonomy('tags')
-        ]).then(response => {
-          let categories = response[0];
-          let tags = response[1];
+        Promise.all([getTaxonomy('categories'), getTaxonomy('tags')]).then(
+          response => {
+            let categories = response[0];
+            let tags = response[1];
 
-          if (categories && tags) {
-            dispatch({
-              type: GET_ALL_OF_TAXONOMY,
-              taxonomy: 'categories',
-              data: categories
-            });
+            if (categories && tags) {
+              dispatch({
+                type: GET_ALL_OF_TAXONOMY,
+                taxonomy: 'categories',
+                data: categories
+              });
 
-            dispatch({
-              type: GET_ALL_OF_TAXONOMY,
-              taxonomy: 'tags',
-              data: tags
-            });
+              dispatch({
+                type: GET_ALL_OF_TAXONOMY,
+                taxonomy: 'tags',
+                data: tags
+              });
 
-            resolve({ categories, tags });
+              resolve({ categories, tags });
+            }
           }
-        });
+        );
       }
     });
   };
@@ -196,19 +195,21 @@ export const getCurrentPost = slug => {
             post: response[0]
           });
 
-          getFeaturedMedia(response[0].featured_media).then(response => {
-            dispatch({
-              type: GET_CURRENT_FEATURED_MEDIA,
-              media: response
+          if (response[0]) {
+            getFeaturedMedia(response[0].featured_media).then(response => {
+              dispatch({
+                type: GET_CURRENT_FEATURED_MEDIA,
+                media: response
+              });
             });
-          });
 
-          getAuthor(response[0].author).then(response => {
-            dispatch({
-              type: GET_CURRENT_AUTHOR,
-              author: response
+            getAuthor(response[0].author).then(response => {
+              dispatch({
+                type: GET_CURRENT_AUTHOR,
+                author: response
+              });
             });
-          });
+          }
         });
     });
   };

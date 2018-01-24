@@ -11,10 +11,7 @@ export const SERVERLESS_API_URL =
     ? 'http://localhost:3001'
     : 'https://yltw3rj1r3.execute-api.us-east-1.amazonaws.com/dev';
 
-export const WORDPRESS_API_URL =
-  process.env.NODE_ENV === 'development'
-    ? 'https://openmined-wordpress.local/wp-json'
-    : 'https://api.openmined.org/wp-json';
+export const WORDPRESS_API_URL = 'https://api.openmined.org/wp-json';
 
 export default combineReducers({
   routing: routerReducer,

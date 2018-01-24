@@ -29,7 +29,7 @@ class Blog extends Component {
     this.blogHeaderInfo = this.blogHeaderInfo.bind(this);
   }
 
-  componentDidMount() {
+  componentWillMount() {
     this.props.getContent(false);
     this.loadPosts(this.state.page, true);
   }

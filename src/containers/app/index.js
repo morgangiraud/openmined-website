@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Route, Switch } from 'react-router-dom';
-
+import 'cross-fetch/polyfill';
 // Action Creators
 import { removeNotification } from '../../modules/notifications';
 
